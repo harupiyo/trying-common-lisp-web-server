@@ -646,21 +646,21 @@ function say(message){
 	.then( response => {
 		if (!response.ok) throw new Error('Fetch API: Network response was not ok')
 		if ( response.headers.get('content-type') !== 'image/svg+xml' ) throw new Error('Fetch API: Allow SVG only')
-		return response.blob()											// 7-1.
+		return response.blob()											// 7.
 	}) 
 	.then( svg => {
 		const container = document.querySelector('#svg-container')
 		const id = randomId()
 		const img = document.createElement('img')
 		const br = document.createElement('br')
-		const reader = new FileReader()									// 7-2.
+		const reader = new FileReader()										// 8.
 		reader.addEventListener("load", () => {
 			img.src = reader.result;
-			img.id = id													// 8.
+			img.id = id											// 9.
 			img.alt = message
-			container.appendChild(img)									// 9.
+			container.appendChild(img)									// 10.
 			container.appendChild(br)
-			location.href = "#" + id									// 10.
+			location.href = "#" + id									// 11.
 		})
 		reader.readAsDataURL(svg)
 	})
@@ -678,11 +678,11 @@ function say(message){
 4. JavaScript でのクロージャの書き方. GENSYM のように呼び出される度に固有値を生成する仕組み.
 5. say() は中核となる関数で、SVG API を呼び出し、画像を受け取って画面に貼り付ける一連の仕事を行う.
 6. SVG API をコールするためのURL を作っている. 日本語等Unicode の文字を送信するために、パーセントエンコーディングを行う encodeURI() API を呼び出している.
-7-1. サーバから返ってきたSVG を[Blob; Binary Large OBject](https://developer.mozilla.org/ja/docs/Web/API/Blob) 形式にして次の処理にまわしている. SVG 自体はUTF-8のテキストなので response.text() メソッドでテキスト形式で扱うのが適切なように思うが、JavaScript の文字列の内部表現はUTF-16 でありややこしくなる(HTML 側はUTF-8だ). またBlob 形式では欲しい [Data URI Scheme](https://ja.wikipedia.org/wiki/Data_URI_scheme) 形式に簡単に変換できる手段があるため、Blob とみなして処理を続けるのが近道である. Blob とはいえせいぜいが500Bytes 程度の小さなバイナリーで、決してLarge ではない. Binary であることが望ましいだけだ.
-7-2. ここでBlob 形式のSVG を[Data URI Scheme](https://ja.wikipedia.org/wiki/Data_URI_scheme) に変換する. FileReader.readAsDataURL() メソッドによってそれがなされる.その処理が終われば<img> 要素のsrc 属性にセットすることができる.
-8. 4. の関数で生成した固有ID を<img> 要素に割りつけている. これは10. のため.
-9. JavaScript で作り上げた<img> 要素を、画面内の要素の子に割り付けることで初めて可視化される.
-10. 今、追加したての<img> 要素の位置までページ内ジャンプ(スクロール)する.
+7. サーバから返ってきたSVG を[Blob; Binary Large OBject](https://developer.mozilla.org/ja/docs/Web/API/Blob) 形式にして次の処理にまわしている. SVG 自体はUTF-8のテキストなので response.text() メソッドでテキスト形式で扱うのが適切なように思うが、JavaScript の文字列の内部表現はUTF-16 でありややこしくなる(HTML 側はUTF-8だ). またBlob 形式では欲しい [Data URI Scheme](https://ja.wikipedia.org/wiki/Data_URI_scheme) 形式に簡単に変換できる手段があるため、Blob とみなして処理を続けるのが近道である. Blob とはいえせいぜいが500Bytes 程度の小さなバイナリーで、決してLarge ではない. Binary であることが望ましいだけだ.
+8. ここでBlob 形式のSVG を[Data URI Scheme](https://ja.wikipedia.org/wiki/Data_URI_scheme) に変換する. FileReader.readAsDataURL() メソッドによってそれがなされる.その処理が終われば<img> 要素のsrc 属性にセットすることができる.
+9. 4 の関数で生成した固有ID を<img> 要素に割りつけている. これは10. のため.
+10. JavaScript で作り上げた<img> 要素を、画面内の要素の子に割り付けることで初めて可視化される.
+11. 今、追加したての<img> 要素の位置までページ内ジャンプ(スクロール)する.
 
 ### これでエコーバックをするWeb アプリケーションは完成となる.
 

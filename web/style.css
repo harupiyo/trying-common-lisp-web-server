@@ -6,7 +6,20 @@
 	padding: 0;
 }
 
+body {
+	background: #eee;
+	width: 1000px;
+	margin: 0 auto;
+}
+
 header {
+	padding: 1em;
+	background: #eeb;
+}
+
+input[type=text] {
+	width: 30em;
+	height: 50px;
 	padding: 1em;
 }
 
@@ -16,17 +29,19 @@ input[type=submit] {
 }
 
 div#svg-container {
+	padding: 2em;
 	height: 70vh;
 	overflow-y: scroll;
 }
 
 footer {
-	position: sticky;
+	position: fixed;
 	bottom: 0px;
 	background: gray;
 	margin: 0;
 	height: 100px;
 	padding: 10px;
+	width: 1000px;
 }
 
 img#made-with-lisp {

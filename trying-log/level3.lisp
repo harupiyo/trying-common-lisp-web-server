@@ -556,7 +556,7 @@ JavaScript? コーディングが完了したからページ記述に組み込�
     (ps "XMLHttpRequest")
     ; 'XMLHttpRequest';"    ...。
 
-[TODO] ↑の問題を片付けたい
+[DONE] ↑の問題を片付けたい
 
 = [2021-10-08] LEVEL3 Day2 - 調査
 [2021-10-08 22:29]
@@ -898,17 +898,17 @@ https://t-cool.hateblo.jp/entry/2018/08/14/110039
 
 https://edicl.github.io/hunchentoot/#create-folder-dispatcher-and-handler
 (ql:quickload '(:hunchentoot :easy-routes :cl-who :cl-svg :cl-ppcre :parenscript :cl-fad :drakma))
-(defparameter *accepter* (make-instance 'easy-routes:routes-acceptor :port 8000)) <--- こうしておけば
-(hunchentoot:start *accepter*)
-(hunchentoot:stop *accepter*)                       <--- これや
-(hunchentoot:acceptor-document-root *accepter*)     <--- これができる
+(defparameter *acceptor* (make-instance 'easy-routes:routes-acceptor :port 8000)) <--- こうしておけば
+(hunchentoot:start *acceptor*)
+(hunchentoot:stop *acceptor*)                       <--- これや
+(hunchentoot:acceptor-document-root *acceptor*)     <--- これができる
 ==> #P"/home/harupiyo/.roswell/lisp/quicklisp/dists/ultralisp/software/edicl-hunchentoot-20210930224628/www/"
     これが静的コンテンツ置き場
 https://edicl.github.io/hunchentoot/#acceptor-document-root
     setf できるとのこと
     (make-pathname :directory "./www/")
-(setf (hunchentoot:acceptor-document-root *accepter*) (make-pathname :directory "./www/"))     <--- これができる
-(hunchentoot:acceptor-document-root *accepter*)     <--- これができる
+(setf (hunchentoot:acceptor-document-root *acceptor*) (make-pathname :directory "./www/"))     <--- これができる
+(hunchentoot:acceptor-document-root *acceptor*)     <--- これができる
 ==> #P"/./www//"
 
 mkdir www
@@ -917,7 +917,7 @@ vi www/glue.js
 http://localhost:8000/glue.js
     -> 見えないなー
 
-(hunchentoot:ACCEPTOR-ERROR-TEMPLATE-DIRECTORY *accepter*)
+(hunchentoot:ACCEPTOR-ERROR-TEMPLATE-DIRECTORY *acceptor*)
 #P"/home/harupiyo/.roswell/lisp/quicklisp/dists/ultralisp/software/edicl-hunchentoot-20210930224628/www/errors/"
     -> ちなみにこのフォルダは存在しない
 
@@ -932,9 +932,9 @@ Lisp のWeb クライアントを使って確認もできるな
 
 https://stackoverflow.com/questions/8285115/how-to-tell-hunchentoot-where-to-find-static-web-pages-to-serve
 
-(hunchentoot:stop *accepter*)
-(setf *accepter* (make-instance 'easy-routes:routes-acceptor :port 8000 :document-root #p"./www/"))
-(hunchentoot:start *accepter*)
+(hunchentoot:stop *acceptor*)
+(setf *acceptor* (make-instance 'easy-routes:routes-acceptor :port 8000 :document-root #p"./www/"))
+(hunchentoot:start *acceptor*)
     (drakma:http-request "http://localhost:8000/www/glue.js") => 404 Not Found
 
 (push (hunchentoot:create-static-file-dispatcher-and-handler "/glue.js" "./www/glue.js")
@@ -976,9 +976,9 @@ https://github.com/mmontone/gestalt/blob/master/src/lwt.lisp
 1. glue.js を静的配信
 mkdir web
 cp glue.js web/
-(defparameter accepter (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
-(hunchentoot:start accepter)
-(hunchentoot:stop accepter)
+(defparameter *acceptor* (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
+(hunchentoot:start *acceptor*)
+(hunchentoot:stop *acceptor*)
 http://localhost:8000/web/glue.js
     -> OK
         MIME 型はどうか？
@@ -1037,6 +1037,7 @@ https://www.softel.co.jp/blogs/tech/archives/4133
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)))
 
     -> OK
+        後記: このやり方はいささか邪悪であった. unescape はobsolate でもはや推奨されない. より明快なやり方がわかり、web/glue.js、及び README.md の「5. Web ページ上の入力フォームとCommon Lisp 側SVG 配信API を接続するJavaScript を作る」で明らかにしている.
 
 ### 見た目の調整
 - web/glue.js
@@ -1063,9 +1064,9 @@ https://www.softel.co.jp/blogs/tech/archives/4133
        (:footer (:img :src "web/Lisp-glossy-120.jpg" :alt "Made with Lisp."))
        (:script :src "web/glue.js")))))
 
-TODO footer の下に少し白い隙間ができてしまっている
+DONE: footer の下に少し白い隙間ができてしまっている -> 後記: web/style.css を修正して直した
 
-### TODO JavaScript を動かす
+### JavaScript を動かす
 
 web/glue.js のAPI 呼び出しがルーティングではなくGET メソッド呼び出しとなったので書き換える
 	fetch( 'http://localhost:8000/api/svg/' + encodeURI(message), options )
@@ -1188,8 +1189,8 @@ app/svg-server.lisp:
 
 ;;; start http server
 
-(defparameter accepter (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
-(hunchentoot:start accepter)
+(defparameter *acceptor* (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
+(hunchentoot:start *acceptor*)
 
 ;;; Making SVG API
 
@@ -1202,25 +1203,3 @@ app/svg-server.lisp:
                         (svg:stream-out string canvas) string)))
       svg-string)))
 
-;;; input form
-
-(setf (cl-who:html-mode) :html5)
-(setf cl-who:*attribute-quote-char* #\")
-
-(hunchentoot:define-easy-handler (index :uri "/") ()
-  (with-html-output-to-string (s nil :prologue t :indent t)
-    (:html
-      (:head
-        (:title "SVG TEXT GENERATOR")
-        (:meta :charset "UTF-8")
-        (:link :rel "stylesheet" :href "web/style.css")
-        (:link :rel "icon" :type "image/vnd.microsoft.icon" :href "web/favicon.ico")) ; favicon を.png にしたければ :type "image/png" とする
-      (:body
-        (:header
-          (:h1 "SVG TEXT GENERATOR")
-             (:input :type "text")
-             (:input :type "submit"))
-       (:div :id "svg-container")
-       (:footer (:img :id "made-with-lisp" :src "web/Lisp-glossy-120.jpg" :alt "Made with Lisp."))
-       (:script :src "web/glue.js")))))
-   

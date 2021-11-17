@@ -2,27 +2,26 @@
 ;;; http://localhost:8000/
 ;;; から動作確認可能
 
-(ql:quickload '(:hunchentoot :cl-svg :cl-who :parenscript))
+(ql:quickload '(:hunchentoot :cl-svg :cl-who))
 (defpackage svg-server
   (:shadow cl-svg:stop) ; hunchentoot:stop とかぶるため
-  (:use :cl :parenscript :cl-who :cl-svg :hunchentoot))
+  (:use :common-lisp :cl-who :cl-svg :hunchentoot))
 (in-package :svg-server)
 
 ;;; start http server
 
-(defparameter accepter (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
-(hunchentoot:start accepter)
+(defparameter *acceptor* (make-instance 'hunchentoot:easy-acceptor :port 8000 :document-root "./web"))
+(hunchentoot:start *acceptor*)
 
 ;;; Making SVG API
 
 (hunchentoot:define-easy-handler (svg :uri "/api/svg") (name)
   (setf (hunchentoot:content-type*) "image/svg+xml")
-  (let ((canvas (svg:make-svg-toplevel 'svg:svg-1.1-toplevel :height 100 :width 1200)))
-    (svg:text canvas (:x 10 :y 50 :font-family "serif" :font-size 50)
-      name) ; URL parts
-    (let ((svg-string (with-output-to-string (string)
-                        (svg:stream-out string canvas) string)))
-      svg-string)))
+  (let ((scene (svg:make-svg-toplevel 'svg:svg-1.1-toplevel :height 100 :width 1200)))
+    (svg:text scene (:x 0 :y 0 :font-family "serif" :font-size 50)
+      name) ; <--- NAME is a GET parameter value passing by in URL.
+	(with-output-to-string (string)
+       (svg:stream-out string scene) string)))
 
 ;;; input form
 
@@ -30,7 +29,7 @@
 (setf cl-who:*attribute-quote-char* #\")
 
 (hunchentoot:define-easy-handler (index :uri "/") ()
-  (with-html-output-to-string (s nil :prologue t :indent t)
+  (cl-who:with-html-output-to-string (s nil :prologue t :indent t)
     (:html
       (:head
         (:title "SVG TEXT GENERATOR")

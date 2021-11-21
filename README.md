@@ -698,6 +698,13 @@ function say(message){
 - Reverse Proxy としてNginx Webサーバーを立てる
 - Nginx にLet's Encrypt のTLS を導入する
 - GitHub からのファイルのデプロイ
+	```
+	$ git clone https://github.com/harupiyo/trying-common-lisp-web-server.git ~/trying-common-lisp-web-server
+	$ cd ~/trying-common-lisp-web-server
+	$ sbcl
+	CL-USER> (load "app/make-binary-svg-server") ; これで実行バイナリー svg-server ができる.
+	$ nohup ./svg-server &
+	```
 - Common Lisp のHunchentoot サーバーを起動する
 	- 落ちた時に自動的に再起動するよう、デーモン化を行う
 - 接続テスト

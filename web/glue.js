@@ -24,7 +24,7 @@ const randomId = genRandomId()
 
 function say(message){
 	const options = { mode: 'same-origin', headers: { 'Content-Type': 'images/svg+xml' } }
-	fetch( 'http://localhost:8000/api/svg?name=' + encodeURI(message), options )
+	fetch( '/api/svg?name=' + encodeURI(message), options )
 	.then( response => {
 		if (!response.ok) throw new Error('Fetch API: Network response was not ok')
 		if ( response.headers.get('content-type') !== 'image/svg+xml' ) throw new Error('Fetch API: Allow SVG only')
